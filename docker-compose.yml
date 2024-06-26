@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+#  db:
+#    image: mysql:8.0
+#    container_name: mysql
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: rootpassword
+#      MYSQL_DATABASE: fastapi_db_test
+#      MYSQL_USER: my_user
+#      MYSQL_PASSWORD: rootpassword
+#    ports:
+#      - "3324:3306"
+##    networks:
+##      - dbnetwork
+#    volumes:
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5443:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  web:
+    build: .
+    container_name: fastapi_app
+    restart: always
+    command: python src/src/main.py
+    depends_on:
+      - db
+    ports:
+      - "8011:8011"
+    environment:
+      - DATABASE_URL=mysql+pymysql://my_user:password@db:3306/fastapi_db_test
+    volumes:
+      - .:/src
+
+volumes:
+  postgres_data:
